@@ -1,3 +1,5 @@
+/* ########## 信息 ########## */
+
 organization := "icu.harx"
 name         := "outwatchdemo"
 version      := "0.1.0"
@@ -5,7 +7,13 @@ version      := "0.1.0"
 scalaVersion := "2.13.8"
 scalacOptions += "-Xsource:3"
 
+/* ########## 插件 ########## */
+
 enablePlugins(ScalaJSPlugin)
+enablePlugins(ScalaJSBundlerPlugin)
+
+/* ########## 依赖 ########## */
+
 resolvers += "jitpack" at "https://jitpack.io"
 libraryDependencies ++= Seq(
   "io.github.outwatch" %%% "outwatch"      % "1.0.0-RC5",
@@ -13,23 +21,27 @@ libraryDependencies ++= Seq(
   "org.scalatest"      %%% "scalatest"     % "3.2.10" % Test
 )
 
-enablePlugins(ScalaJSBundlerPlugin)
-// makes scalajs-bundler use yarn instead of npm
-useYarn                         := false
-Test / requireJsDomEnv          := true
-scalaJSUseMainModuleInitializer := true
-// configure Scala.js to emit a JavaScript module instead of a top-level script
-scalaJSLinkerConfig ~= (_.withModuleKind(
-  ModuleKind.CommonJSModule
-))
+/* ########## 命令 ########## */
 
 // hot reloading configuration:
 // https://github.com/scalacenter/scalajs-bundler/issues/180
-addCommandAlias("devwatch", "~; fastOptJS; copyFastOptJS")
+addCommandAlias(
+  "devwatch",
+  "~; fastOptJS; copyFastOptJS"
+)
+
 addCommandAlias(
   "dev",
   "; compile; fastOptJS::startWebpackDevServer; devwatch; fastOptJS::stopWebpackDevServer"
 )
+
+/* ########## 配置 ########## */
+
+scalaJSUseMainModuleInitializer := true
+scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
+
+useYarn                := false
+Test / requireJsDomEnv := true
 
 webpack / version               := "4.46.0"
 startWebpackDevServer / version := "3.11.2"
@@ -54,7 +66,7 @@ copyFastOptJS := {
   val files  = Seq(
     name.value.toLowerCase + "-fastopt-loader.js",
     name.value.toLowerCase + "-fastopt.js"
-  ).map(p => (inDir / p, outDir / p))
+  ).map(jsFile => (inDir / jsFile, outDir / jsFile))
 
   IO.copy(
     files,
